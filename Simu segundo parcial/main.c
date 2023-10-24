@@ -30,9 +30,17 @@ int main()
     else
         printf("LA POSICION ES: %d",posicion(arr,validos,catee,i));
 
+
     arr= cargar_lista_productos( arr, validos,archivo);
 
     mostrar_cabecera_arreglo(arr,validos);
+
+    cargar_archivo_categoria(arr,archivo,validos);
+
+    arr= agregar_desde_archivo(archivo,&validos);
+
+    mostrar_cabecera_arreglo(arr, validos);
+
     return 0;
 }
 
@@ -74,7 +82,7 @@ Arreglo *agregar_desde_archivo(char archivo[], int *validos)
 
             if (!categoriaExistente)
             {
-                // Agregar una nueva categoría al arreglo
+
                 numElementos++;
                 arr = (Arreglo *)realloc(arr, numElementos *  sizeof(Arreglo));
                 strcpy(arr[i].registro1.categoria, regis.categoria);
@@ -84,7 +92,7 @@ Arreglo *agregar_desde_archivo(char archivo[], int *validos)
 
         fseek(archi, 0, SEEK_SET);
 
-        // Leer nuevamente el archivo y asignar los productos a las categorías
+
         while (fread(&regis, sizeof(stRegistroProductos), 1, archi) > 0)
         {
             stProducto product;
@@ -98,15 +106,15 @@ Arreglo *agregar_desde_archivo(char archivo[], int *validos)
                     product.cantidadStock = regis.cantidadStock;
                     product.idProducto = regis.idProducto;
 
-                    // Verificar si arr[j].siguiente es NULL y actuar en consecuencia
+
                     if (arr[j].siguiente == NULL)
                     {
-                        // Si es NULL, crea un nuevo nodo y asigna a arr[j].siguiente
+
                         arr[j].siguiente = crearNodo(product);
                     }
                     else
                     {
-                        // Si no es NULL, agrega el nuevo nodo al final de la lista
+
                         arr[j].siguiente = agregarFinal(arr[j].siguiente, crearNodo(product));
                     }
                 }
@@ -151,7 +159,7 @@ Arreglo *cargar_manualmente(Arreglo *arr,int *validos)
         fflush(stdin);
         gets(arr[i].registro1.categoria);
         arr[i].siguiente=inicLista();
-
+        arr[i].registro1.idRegistro=i;
         i++;
 
         printf("PRESS ESC TO EXIT OR ANY KEY TO CONTINUE LOADING \n");
@@ -255,27 +263,61 @@ void cargar_archivo_categoria(Arreglo *arr,char archivo[],int validos)
 {
 
     FILE *archi=fopen(archivo,"r+b");
+    stRegistroProductos reg;
     stRegistroProductos cate;
-
     int i=0;
     if(archi)
     {
-        while(fread(&cate,sizeof(stRegistroProductos),1,archi)>0)
+        printf("Ingrese Categoria a agregar \n");
+        fflush(stdin);
+        gets(cate.categoria);
+        while(i<validos)
         {
+
             if(strcmpi(cate.categoria,arr[i].registro1.categoria)==0)
             {
-                fseek(archi,ftell(archi),SEEK_SET);
+                /// fseek(archi,ftell(archi),SEEK_SET);
 
+
+                nodo*aux=arr[i].siguiente;
+                while(aux)
+                {
+                    int flag=0;
+                    while(fread(&reg,sizeof(stRegistroProductos),1,archi)>0)
+                    {
+
+                        if(aux->dato.idProducto==reg.idProducto)
+                        {
+
+                            flag=1;
+
+                        }
+
+                    }
+                    if(!flag)
+                    {
+                        fseek(archi,0,SEEK_END);
+                        strcpy(reg.nombreProducto,aux->dato.nombreProducto);
+                        strcpy(reg.categoria,cate.categoria);
+
+                        strcpy(reg.fechaExpiracion,aux->dato.fechaExpiracion);
+                            reg.idRegistro=arr[i].registro1.idRegistro;
+                        reg.cantidadStock=aux->dato.cantidadStock;
+                    reg.idProducto=aux->dato.idProducto;
+                        fwrite(&reg,sizeof(stRegistroProductos),1,archi);
+                    }
+                    fseek(archi,0,SEEK_SET);
+                    aux=aux->siguiente;
+
+                }
             }
+
             i++;
-
-
         }
-
     }
 
     else
-        perror("ERROR AL ABRIR EL ARCHIVO \n");
+        printf("ERROR EN EL ARCHIVO FUNCION AGREGAR \n");
 
     fclose(archi);
 }

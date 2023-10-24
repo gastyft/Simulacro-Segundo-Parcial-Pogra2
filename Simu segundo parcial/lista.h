@@ -44,8 +44,8 @@ void mostrar_cabecera_arreglo(Arreglo *arr,int validos);
 Arreglo *cargar_manualmente(Arreglo *arr,int *validos);
 int posicion(Arreglo *arr,int validos,char cate[30],int i);
 Arreglo *inicArreglo();
-void cargar_archivo_categoria(Arreglo *arr,char archivo[],int validos);
 Arreglo* cargar_lista_productos(Arreglo *arr,int validos,char archivo[]);
+void cargar_archivo_categoria(Arreglo *arr,char archivo[],int validos);
 stProducto cargar_producto();
 int contar_productos(char archivo[]);
 
